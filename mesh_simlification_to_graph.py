@@ -215,28 +215,28 @@ class SingleCentroidGraph:
                  dist_th: float = 0.5,
                  linkage: str = "average",
                  max_k: int = 10,
-                 feat_from: int = 3):  # <— manquait le ":"
-        # Charger le mesh
+                 feat_from: int = 3):  
+        # Load mesh
         mesh = pymesh.load_mesh(mesh_path)
-
-        # Récupérer proprement le base name (sans extension) du mesh
         base_name = os.path.splitext(os.path.basename(mesh_path))[0]
 
-        # Charger propriétés & courbure
+        # load  proprties from txt file
         props = load_properties_txt(properties_dir, base_name)
+        # compute mean curvatures
         mean_curv = compute_mean_curvature(mesh)
 
-        # Matrice de features: [xyz | props | mean_curv]
+        # Features Matrix: [xyz | propreties | mean_curv]
         data = build_feature_matrix(mesh, props, mean_curv)
 
-        # Graphe de sommets + patches locaux
+        # meah to graph 
         Gv = mesh_to_vertex_graph(mesh)
+        # local patches
         patches = create_local_patches(Gv, max_radius=radius)
 
-        # Clustering intra-patch -> labels globaux
+        # Clustering intra-patch -> global labels
         labels = label_from_patches(data, patches, distance_threshold=dist_th, linkage=linkage)
 
-        # Centroides par cluster global
+        #  centroid of a cluster 
         centroids = compute_centroids(labels, data)
 
         # Graphe de centroides (k-NN sur les features à partir de feat_from)
